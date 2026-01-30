@@ -239,9 +239,15 @@ namespace Mod::AI::Improved_UseItem
 		{
 			CTFWearable *pActionSlotEntity = bot->GetEquippedWearableForLoadoutSlot( LOADOUT_POSITION_ACTION );
 			if (!bot->ExtAttr()[CTFBot::ExtendedAttr::HOLD_CANTEENS] && pActionSlotEntity  != nullptr) {
-
+	
 				// get the equipped item and see what it is
 				CTFPowerupBottle *pPowerupBottle = rtti_cast< CTFPowerupBottle* >( pActionSlotEntity );
+				
+				// skip this shit or we face a crash from defender bots
+				if (pPowerupBottle != nullptr && bot->GetTeamNumber() == TF_TEAM_RED) {
+					return result;
+				}
+				
 				CTFBot *bot_acting = bot;
 				if (bot->IsPlayerClass(TF_CLASS_MEDIC)) {
 					auto medigun = rtti_cast<CWeaponMedigun *>(bot->GetActiveWeapon());
@@ -253,7 +259,7 @@ namespace Mod::AI::Improved_UseItem
 						}
 					}
 				}
-
+	
 				
 				const CKnownEntity *threat = bot_acting->GetVisionInterface()->GetPrimaryKnownThreat(false);
 				if ( pPowerupBottle  != nullptr && threat != nullptr && threat->GetEntity() != nullptr && threat->IsVisibleRecently() 
@@ -267,7 +273,7 @@ namespace Mod::AI::Improved_UseItem
 					}
 				
 				}
-
+	
 				int iNoiseMaker = 0;
 				CALL_ATTRIB_HOOK_INT_ON_OTHER(bot, iNoiseMaker, enable_misc2_noisemaker );
 				//DevMsg("Has noise maker %d\n",iNoiseMaker);
@@ -275,39 +281,12 @@ namespace Mod::AI::Improved_UseItem
 					
 					item_noisemaker = pActionSlotEntity->GetItem();
 					bot->UseActionSlotItemPressed();
-
+	
 					item_noisemaker = nullptr;
-
+	
 					bot->UseActionSlotItemReleased();
 				}
 			}
-			/*for ( int w=0; w<MAX_WEAPONS; ++w )
-			{
-				CTFWeaponBase *weapon = ( CTFWeaponBase * )bot->GetWeapon( w );
-				if ( !weapon )
-					continue;
-
-				if ( weapon->GetWeaponID() == TF_WEAPON_JAR || weapon->GetWeaponID() == TF_WEAPON_JAR_MILK || weapon->GetWeaponID() == TF_WEAPON_JAR_GAS || weapon->GetWeaponID() == TF_WEAPON_CLEAVER)
-				{
-					const CKnownEntity *threat = bot->GetVisionInterface()->GetPrimaryKnownThreat(false);
-					if ( weapon->HasAmmo() && threat != nullptr && threat->GetEntity() != nullptr && threat->IsVisibleInFOVNow())
-					{
-						if (CTFBotUseItemImproved::IsPossible(bot)) {
-							return new CTFBotUseThrowableItem(weapon);
-						} else {
-							return nullptr;
-						}
-					}
-				}
-				if ( weapon->GetWeaponID() == TF_WEAPON_SPELLBOOK || strcmp(weapon->GetClassname(), "tf_powerup_bottle") == 0)
-				{
-					if (strcmp(weapon->GetClassname(), "tf_powerup_bottle") == 0) {
-						reinterpret_cast<CTFItem *>(this);
-					}
-					bot->UseActionSlotItemPressed();
-					bot->UseActionSlotItemReleased();
-				}
-			}*/
 		}
 		return result;
 	}
