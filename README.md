@@ -1,5 +1,5 @@
 # rafmod (sigsegv-mvm)
-a stupid lil fork i made to make fixes for this due to raf being well lazy or some sort
+a stupid lil fork i made to make fixes for this due to raf being well lazy or some sort (please dont murder me)
 gigantic, obese SourceMod extension library of sigsegv's and rafradek's TF2/Source mods (mostly MvM related)
 For other Source games, only optimize-only package is provided
 
@@ -123,4 +123,5 @@ Build and create full, no-mvm, optimize-only packages (they can be found in buil
 ```
 ./multibuild.sh
 ```
+
 
