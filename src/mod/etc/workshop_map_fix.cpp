@@ -268,30 +268,50 @@ namespace Mod::Etc::Workshop_Map_Fix
 
 	DETOUR_DECL_MEMBER(int, CNavMesh_Load)
 	{
-        auto value = DETOUR_MEMBER_CALL();
-        // Find nav mesh with a different version map if not found
-		auto mapNameNoVersion = GetMapNameNoVersion(STRING(gpGlobals->mapname));
-        if (value == 1 && mapNoVersionNameToFullName.contains(mapNameNoVersion)) {
-			string_t oldMap = gpGlobals->mapname;
-			if(filesystem->FileExists(std::format("maps/{}.nav", mapNameNoVersion).c_str(), "GAME")) {
-				gpGlobals->mapname = MAKE_STRING(mapNameNoVersion.c_str());
-				value = DETOUR_MEMBER_CALL();
-			}
-			else {
-				FileFindHandle_t mapHandle;
-				for (const char *mapName = filesystem->FindFirstEx("maps/*.nav", "GAME", &mapHandle);
-								mapName != nullptr; mapName = filesystem->FindNext(mapHandle)) {
-					if (StringHasPrefix(mapName,mapNameNoVersion.c_str())) {
-						gpGlobals->mapname = MAKE_STRING(mapNameNoVersion.c_str());
-						value = DETOUR_MEMBER_CALL();
-						break;
-					}
-				}
-			}
-			gpGlobals->mapname = oldMap;
-        }
-        return value;
-    }
+	    int result = DETOUR_MEMBER_CALL();
+	
+	    // Success? Do nothing.
+	    if (result == 0) {
+	        return result;
+	    }
+	
+	    const char *mapName = STRING(gpGlobals->mapname);
+	    std::string mapNameNoVersion = GetMapNameNoVersion(mapName);
+	
+	    // Only try fallback if we actually know about this workshop map
+	    if (!mapNoVersionNameToFullName.contains(mapNameNoVersion)) {
+	        return result;
+	    }
+	
+	    std::string desiredNav = std::format("maps/{}.nav", mapName);
+	    std::error_code ec;
+	
+	    // If nav already exists under correct name, retry once
+	    if (filesystem->FileExists(desiredNav.c_str(), "GAME")) {
+	        return DETOUR_MEMBER_CALL();
+	    }
+	
+	    // Try to find a compatible navmesh to copy
+	    FileFindHandle_t handle;
+	    for (const char *nav = filesystem->FindFirstEx("maps/*.nav", "GAME", &handle);
+	         nav != nullptr;
+	         nav = filesystem->FindNext(handle)) {
+	
+	        if (!StringHasPrefix(nav, mapNameNoVersion.c_str())) {
+	            continue;
+	        }
+	
+	        std::string sourceNav = std::format("maps/{}", nav);
+	
+	        // Copy instead of renaming or global state hacks
+	        filesystem->CopyFile(sourceNav.c_str(), desiredNav.c_str());
+	
+	        // Retry nav load with correct map name
+	        return DETOUR_MEMBER_CALL();
+	    }
+	
+	    return result;
+	}
 
 	class CMod : public IMod, IModCallbackListener, IFrameUpdatePostEntityThinkListener
 	{
@@ -366,3 +386,4 @@ namespace Mod::Etc::Workshop_Map_Fix
 			s_Mod.Toggle(static_cast<ConVar *>(pConVar)->GetBool());
 		});
 }
+
