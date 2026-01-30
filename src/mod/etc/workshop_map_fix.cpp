@@ -270,7 +270,7 @@ namespace Mod::Etc::Workshop_Map_Fix
 	{
 	    int result = DETOUR_MEMBER_CALL();
 	
-	    // Success? Do nothing.
+	    // Success → nothing to do
 	    if (result == 0) {
 	        return result;
 	    }
@@ -278,18 +278,61 @@ namespace Mod::Etc::Workshop_Map_Fix
 	    const char *mapName = STRING(gpGlobals->mapname);
 	    std::string mapNameNoVersion = GetMapNameNoVersion(mapName);
 	
-	    // Only try fallback if we actually know about this workshop map
 	    if (!mapNoVersionNameToFullName.contains(mapNameNoVersion)) {
 	        return result;
 	    }
 	
-	    std::string desiredNav = std::format("maps/{}.nav", mapName);
 	    std::error_code ec;
 	
-	    // If nav already exists under correct name, retry once
-	    if (filesystem->FileExists(desiredNav.c_str(), "GAME")) {
+	    // Resolve full path for desired nav
+	    char desiredNavPath[MAX_PATH];
+	    filesystem->RelativePathToFullPath(
+	        std::format("maps/{}.nav", mapName).c_str(),
+	        "GAME",
+	        desiredNavPath,
+	        sizeof(desiredNavPath)
+	    );
+	
+	    // If the correct nav already exists, retry load
+	    if (std::filesystem::exists(desiredNavPath, ec)) {
 	        return DETOUR_MEMBER_CALL();
 	    }
+	
+	    // Search for compatible navmesh
+	    FileFindHandle_t handle;
+	    for (const char *nav = filesystem->FindFirstEx("maps/*.nav", "GAME", &handle);
+	         nav != nullptr;
+	         nav = filesystem->FindNext(handle)) {
+	
+	        if (!StringHasPrefix(nav, mapNameNoVersion.c_str())) {
+	            continue;
+	        }
+	
+	        char sourceNavPath[MAX_PATH];
+	        filesystem->RelativePathToFullPath(
+	            std::format("maps/{}", nav).c_str(),
+	            "GAME",
+	            sourceNavPath,
+	            sizeof(sourceNavPath)
+	        );
+	
+	        // Copy navmesh under the correct name
+	        std::filesystem::copy_file(
+	            sourceNavPath,
+	            desiredNavPath,
+	            std::filesystem::copy_options::overwrite_existing,
+	            ec
+	        );
+	
+	        if (!ec) {
+	            // Retry nav load now that the correct file exists
+	            return DETOUR_MEMBER_CALL();
+	        }
+	    }
+	
+	    return result;
+	}
+
 	
 	    // Try to find a compatible navmesh to copy
 	    FileFindHandle_t handle;
@@ -386,4 +429,5 @@ namespace Mod::Etc::Workshop_Map_Fix
 			s_Mod.Toggle(static_cast<ConVar *>(pConVar)->GetBool());
 		});
 }
+
 
