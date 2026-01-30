@@ -284,7 +284,6 @@ namespace Mod::Etc::Workshop_Map_Fix
 	
 	    std::error_code ec;
 	
-	    // Resolve full path for desired nav
 	    char desiredNavPath[MAX_PATH];
 	    filesystem->RelativePathToFullPath(
 	        std::format("maps/{}.nav", mapName).c_str(),
@@ -293,12 +292,11 @@ namespace Mod::Etc::Workshop_Map_Fix
 	        sizeof(desiredNavPath)
 	    );
 	
-	    // If the correct nav already exists, retry load
+	    // If correct nav already exists, retry once
 	    if (std::filesystem::exists(desiredNavPath, ec)) {
 	        return DETOUR_MEMBER_CALL();
 	    }
 	
-	    // Search for compatible navmesh
 	    FileFindHandle_t handle;
 	    for (const char *nav = filesystem->FindFirstEx("maps/*.nav", "GAME", &handle);
 	         nav != nullptr;
@@ -316,7 +314,6 @@ namespace Mod::Etc::Workshop_Map_Fix
 	            sizeof(sourceNavPath)
 	        );
 	
-	        // Copy navmesh under the correct name
 	        std::filesystem::copy_file(
 	            sourceNavPath,
 	            desiredNavPath,
@@ -325,37 +322,12 @@ namespace Mod::Etc::Workshop_Map_Fix
 	        );
 	
 	        if (!ec) {
-	            // Retry nav load now that the correct file exists
 	            return DETOUR_MEMBER_CALL();
 	        }
 	    }
 	
 	    return result;
 	}
-
-	
-	    // Try to find a compatible navmesh to copy
-	    FileFindHandle_t handle;
-	    for (const char *nav = filesystem->FindFirstEx("maps/*.nav", "GAME", &handle);
-	         nav != nullptr;
-	         nav = filesystem->FindNext(handle)) {
-	
-	        if (!StringHasPrefix(nav, mapNameNoVersion.c_str())) {
-	            continue;
-	        }
-	
-	        std::string sourceNav = std::format("maps/{}", nav);
-	
-	        // Copy instead of renaming or global state hacks
-	        filesystem->CopyFile(sourceNav.c_str(), desiredNav.c_str());
-	
-	        // Retry nav load with correct map name
-	        return DETOUR_MEMBER_CALL();
-	    }
-	
-	    return result;
-	}
-
 	class CMod : public IMod, IModCallbackListener, IFrameUpdatePostEntityThinkListener
 	{
 	public:
@@ -429,5 +401,6 @@ namespace Mod::Etc::Workshop_Map_Fix
 			s_Mod.Toggle(static_cast<ConVar *>(pConVar)->GetBool());
 		});
 }
+
 
 
