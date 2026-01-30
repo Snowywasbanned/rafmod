@@ -237,48 +237,52 @@ namespace Mod::AI::Improved_UseItem
 		}
 		else
 		{
-			CTFWearable *pActionSlotEntity = bot->GetEquippedWearableForLoadoutSlot( LOADOUT_POSITION_ACTION );
-			if (!bot->ExtAttr()[CTFBot::ExtendedAttr::HOLD_CANTEENS] && pActionSlotEntity  != nullptr) {
+			if (!bot->ExtAttr()[CTFBot::ExtendedAttr::HOLD_CANTEENS]) {
+				CBaseEntity *pActionSlotEntity = bot->GetEntityForLoadoutSlot(LOADOUT_POSITION_ACTION);
+				if (pActionSlotEntity != nullptr) {
+					
+					// Is it a canteen?
+					CTFPowerupBottle *pPowerupBottle = rtti_cast<CTFPowerupBottle*>(pActionSlotEntity);
+					if (pPowerupBottle != nullptr) {
+						CTFBot *bot_acting = bot;
+						if (bot->IsPlayerClass(TF_CLASS_MEDIC)) {
+							auto medigun = rtti_cast<CWeaponMedigun *>(bot->GetActiveWeapon());
+							if (medigun != nullptr) {
+								CTFBot *patient = ToTFBot(medigun->GetHealTarget());
+								if (patient != nullptr) {
+									
+									bot_acting = patient;
+								}
+							}
+						}
 
-				// get the equipped item and see what it is
-				CTFPowerupBottle *pPowerupBottle = rtti_cast< CTFPowerupBottle* >( pActionSlotEntity );
-				CTFBot *bot_acting = bot;
-				if (bot->IsPlayerClass(TF_CLASS_MEDIC)) {
-					auto medigun = rtti_cast<CWeaponMedigun *>(bot->GetActiveWeapon());
-					if (medigun != nullptr) {
-						CTFBot *patient = ToTFBot(medigun->GetHealTarget());
-						if (patient != nullptr) {
-							
-							bot_acting = patient;
+						
+						const CKnownEntity *threat = bot_acting->GetVisionInterface()->GetPrimaryKnownThreat(false);
+						if ( pPowerupBottle  != nullptr && threat != nullptr && threat->GetEntity() != nullptr && threat->IsVisibleRecently() 
+							&& bot_acting->GetIntentionInterface()->ShouldAttack(bot_acting->MyNextBotPointer(), threat) == QueryResponse::YES)
+						{
+							if ( bot_acting->IsLineOfFireClear( threat->GetEntity()->EyePosition() ) || bot_acting->IsLineOfFireClear( threat->GetEntity()->WorldSpaceCenter() ) || 
+								bot_acting->IsLineOfFireClear( threat->GetEntity()->GetAbsOrigin() ))
+							{
+								bot->UseActionSlotItemPressed();
+								bot->UseActionSlotItemReleased();
+							}
+						
+						}
+					} else {
+						// Is it a wearable (for noisemaker etc)?
+						CTFWearable *pWearable = rtti_cast<CTFWearable*>(pActionSlotEntity);
+						if (pWearable != nullptr) {
+							int iNoiseMaker = 0;
+							CALL_ATTRIB_HOOK_INT_ON_OTHER(bot, iNoiseMaker, enable_misc2_noisemaker );
+							if (iNoiseMaker != 0) {
+								item_noisemaker = pWearable->GetItem();
+								bot->UseActionSlotItemPressed();
+								item_noisemaker = nullptr;
+								bot->UseActionSlotItemReleased();
+							}
 						}
 					}
-				}
-
-				
-				const CKnownEntity *threat = bot_acting->GetVisionInterface()->GetPrimaryKnownThreat(false);
-				if ( pPowerupBottle  != nullptr && threat != nullptr && threat->GetEntity() != nullptr && threat->IsVisibleRecently() 
-					&& bot_acting->GetIntentionInterface()->ShouldAttack(bot_acting->MyNextBotPointer(), threat) == QueryResponse::YES)
-				{
-					if ( bot_acting->IsLineOfFireClear( threat->GetEntity()->EyePosition() ) || bot_acting->IsLineOfFireClear( threat->GetEntity()->WorldSpaceCenter() ) || 
-						bot_acting->IsLineOfFireClear( threat->GetEntity()->GetAbsOrigin() ))
-					{
-						bot->UseActionSlotItemPressed();
-						bot->UseActionSlotItemReleased();
-					}
-				
-				}
-
-				int iNoiseMaker = 0;
-				CALL_ATTRIB_HOOK_INT_ON_OTHER(bot, iNoiseMaker, enable_misc2_noisemaker );
-				//DevMsg("Has noise maker %d\n",iNoiseMaker);
-				if (!bot->ExtAttr()[CTFBot::ExtendedAttr::HOLD_CANTEENS] && iNoiseMaker != 0) {
-					
-					item_noisemaker = pActionSlotEntity->GetItem();
-					bot->UseActionSlotItemPressed();
-
-					item_noisemaker = nullptr;
-
-					bot->UseActionSlotItemReleased();
 				}
 			}
 			/*for ( int w=0; w<MAX_WEAPONS; ++w )

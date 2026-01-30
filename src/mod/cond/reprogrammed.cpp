@@ -16,6 +16,7 @@
 
 namespace Mod::Cond::Reprogrammed
 {
+	static bool s_bInReprogrammedTeamChange = false;
 	constexpr uint8_t s_Buf_UpdateMission[] = {
 #ifdef PLATFORM_64BITS
 		0xba, 0x01, 0x00, 0x00, 0x00,                    // +0x0000 mov     edx, 1
@@ -423,11 +424,12 @@ namespace Mod::Cond::Reprogrammed
 		
 		if (player->IsBot()) {
 			if (player->GetTeamNumber() == TF_TEAM_BLUE) {
-				DevMsg("  currently on TF_TEAM_BLUE: calling ForceChangeTeam(TF_TEAM_RED)\n");
 				if (player->m_Shared->InCond(TF_COND_DISGUISING)) {
 					player->m_Shared->RemoveCond(TF_COND_DISGUISING);
 				}
+				s_bInReprogrammedTeamChange = true;
 				player->ForceChangeTeam(TF_TEAM_RED, false);
+				s_bInReprogrammedTeamChange = false;
 			} else {
 				DevMsg("  currently on teamnum %d; not calling ForceChangeTeam\n", player->GetTeamNumber());
 			}
@@ -444,26 +446,46 @@ namespace Mod::Cond::Reprogrammed
 		else {
 			
 			stop_auto_assignment = true;
-			if (player->GetTeamNumber() == TF_TEAM_BLUE) {
-				
-				if (player->m_Shared->InCond(TF_COND_DISGUISING)) {
-					player->m_Shared->RemoveCond(TF_COND_DISGUISING);
-				}
-				player->ForceChangeTeam(TF_TEAM_RED, false);
+			if (TFGameRules()->IsMannVsMachineMode()) {
+				if (player->GetTeamNumber() == TF_TEAM_BLUE) {
+					if (player->m_Shared->InCond(TF_COND_DISGUISING)) {
+						player->m_Shared->RemoveCond(TF_COND_DISGUISING);
+					}
+					s_bInReprogrammedTeamChange = true;
+					player->ForceChangeTeam(TF_TEAM_RED, false);
+					s_bInReprogrammedTeamChange = false;
 
-				if (cvar_hellmet.GetBool()) {
-					ChangeWeaponAndWearableTeam(player, TF_TEAM_RED);
+					if (cvar_hellmet.GetBool()) {
+						ChangeWeaponAndWearableTeam(player, TF_TEAM_RED);
+					}
 				}
 			}
 			else {
+				if (player->GetTeamNumber() == TF_TEAM_BLUE) {
+					
+					if (player->m_Shared->InCond(TF_COND_DISGUISING)) {
+						player->m_Shared->RemoveCond(TF_COND_DISGUISING);
+					}
+					s_bInReprogrammedTeamChange = true;
+					player->ForceChangeTeam(TF_TEAM_RED, false);
+					s_bInReprogrammedTeamChange = false;
 
-				if (player->m_Shared->InCond(TF_COND_DISGUISING)) {
-					player->m_Shared->RemoveCond(TF_COND_DISGUISING);
+					if (cvar_hellmet.GetBool()) {
+						ChangeWeaponAndWearableTeam(player, TF_TEAM_RED);
+					}
 				}
-				player->ForceChangeTeam(TF_TEAM_BLUE, false);
+				else {
 
-				if (cvar_hellmet.GetBool()) {
-					ChangeWeaponAndWearableTeam(player, TF_TEAM_BLUE);
+					if (player->m_Shared->InCond(TF_COND_DISGUISING)) {
+						player->m_Shared->RemoveCond(TF_COND_DISGUISING);
+					}
+					s_bInReprogrammedTeamChange = true;
+					player->ForceChangeTeam(TF_TEAM_BLUE, false);
+					s_bInReprogrammedTeamChange = false;
+
+					if (cvar_hellmet.GetBool()) {
+						ChangeWeaponAndWearableTeam(player, TF_TEAM_BLUE);
+					}
 				}
 			}
 			
@@ -514,9 +536,9 @@ namespace Mod::Cond::Reprogrammed
 			}
 			else {
 				if (player->GetTeamNumber() == TF_TEAM_RED) {
-					DevMsg("  currently on TF_TEAM_RED: calling ForceChangeTeam(TF_TEAM_BLUE)\n");
-					player->ForceChangeTeam(TF_TEAM_BLUE, false);
-				} else {
+					                    s_bInReprogrammedTeamChange = true;
+					                    player->ForceChangeTeam(TF_TEAM_BLUE, false);
+					                    s_bInReprogrammedTeamChange = false;				} else {
 					DevMsg("  currently on teamnum %d; not calling ForceChangeTeam\n", player->GetTeamNumber());
 				}
 			}
@@ -537,25 +559,46 @@ namespace Mod::Cond::Reprogrammed
 		}
 		else {
 			stop_auto_assignment = true;
-			if (player->GetTeamNumber() == TF_TEAM_RED) {
-				player->ForceChangeTeam(TF_TEAM_BLUE, false);
-				if (cvar_hellmet.GetBool()) {
-					if (player->m_lifeState == LIFE_DYING) {
-						// hack hack hack: make wearable gibs be red
-						player->m_nSkin = 0;
-					} else {
-						ChangeWeaponAndWearableTeam(player, TF_TEAM_BLUE);
+			if (TFGameRules()->IsMannVsMachineMode()) {
+                if (player->GetTeamNumber() == TF_TEAM_RED) {
+                    s_bInReprogrammedTeamChange = true;
+                    player->ForceChangeTeam(TF_TEAM_BLUE, false);
+                    s_bInReprogrammedTeamChange = false;
+                    if (cvar_hellmet.GetBool()) {
+                        if (player->m_lifeState == LIFE_DYING) {
+                            // hack hack hack: make wearable gibs be red
+                            player->m_nSkin = 0;
+                        } else {
+                            ChangeWeaponAndWearableTeam(player, TF_TEAM_BLUE);
+                        }
+                    }
+                }
+            }
+			else {
+				if (player->GetTeamNumber() == TF_TEAM_RED) {
+					s_bInReprogrammedTeamChange = true;
+					player->ForceChangeTeam(TF_TEAM_BLUE, false);
+					s_bInReprogrammedTeamChange = false;
+					if (cvar_hellmet.GetBool()) {
+						if (player->m_lifeState == LIFE_DYING) {
+							// hack hack hack: make wearable gibs be red
+							player->m_nSkin = 0;
+						} else {
+							ChangeWeaponAndWearableTeam(player, TF_TEAM_BLUE);
+						}
 					}
 				}
-			}
-			else if (player->GetTeamNumber() == TF_TEAM_BLUE) {
-				player->ForceChangeTeam(TF_TEAM_RED, false);
-				if (cvar_hellmet.GetBool()) {
-					if (player->m_lifeState == LIFE_DYING) {
-						// hack hack hack: make wearable gibs be red
-						player->m_nSkin = 1;
-					} else {
-						ChangeWeaponAndWearableTeam(player, TF_TEAM_RED);
+				else if (player->GetTeamNumber() == TF_TEAM_BLUE) {
+					s_bInReprogrammedTeamChange = true;
+					player->ForceChangeTeam(TF_TEAM_RED, false);
+					s_bInReprogrammedTeamChange = false;
+					if (cvar_hellmet.GetBool()) {
+						if (player->m_lifeState == LIFE_DYING) {
+							// hack hack hack: make wearable gibs be red
+							player->m_nSkin = 1;
+						} else {
+							ChangeWeaponAndWearableTeam(player, TF_TEAM_RED);
+						}
 					}
 				}
 			}
@@ -600,7 +643,9 @@ namespace Mod::Cond::Reprogrammed
 
 		if (player->GetTeamNumber() != TEAM_SPECTATOR) {
 			DevMsg("  currently on TF_TEAM_BLUE: calling ForceChangeTeam(TF_TEAM_RED)\n");
+			s_bInReprogrammedTeamChange = true;
 			player->ChangeTeamBase(TEAM_SPECTATOR, false, true, false);
+			s_bInReprogrammedTeamChange = false;
 		} else {
 			DevMsg("  currently on teamnum %d; not calling ForceChangeTeam\n", player->GetTeamNumber());
 		}
@@ -634,14 +679,16 @@ namespace Mod::Cond::Reprogrammed
 		if (player->GetTeamNumber() == TEAM_SPECTATOR) {
 			if (bot != nullptr && player->m_lifeState == LIFE_DYING) {
 				//bots_killed.push_back(reinterpret_cast<CTFPlayer *>(player));
-				//player->ThinkSet(&NeutralSwitch::Switch, gpGlobals->curtime+4.0f, "AutoKick");
-				
-				player->ForceChangeTeam(TF_TEAM_BLUE, true);
-				//bot->SetAttribute(CTFBot::AttributeType::ATTR_REMOVE_ON_DEATH);
+				                s_bInReprogrammedTeamChange = true;
+				                player->ForceChangeTeam(TF_TEAM_BLUE, true);
+				                s_bInReprogrammedTeamChange = false;				//bot->SetAttribute(CTFBot::AttributeType::ATTR_REMOVE_ON_DEATH);
 				//player->ForceChangeTeam(TEAM_SPECTATOR, true);
 			}
-			else
+			else {
+				s_bInReprogrammedTeamChange = true;
 				player->ForceChangeTeam(TF_TEAM_BLUE, false);
+				s_bInReprogrammedTeamChange = false;
+			}
 		}
 
 		if (bot != nullptr) {
@@ -932,8 +979,12 @@ namespace Mod::Cond::Reprogrammed
 			for (auto player : tempVector) {
 				if (player->IsBot()) {
 					if (player->IsAlive() && player->GetTeamNumber() == TEAM_SPECTATOR) {
+						s_bInReprogrammedTeamChange = true;
 						player->ForceChangeTeam(TF_TEAM_BLUE, true);
+						s_bInReprogrammedTeamChange = false;
+						s_bInReprogrammedTeamChange = true;
 						player->ForceChangeTeam(TEAM_SPECTATOR, true);
+						s_bInReprogrammedTeamChange = false;
 					}
 					else {
 						playerVector->AddToTail(player);
@@ -1401,6 +1452,10 @@ namespace Mod::Cond::Reprogrammed
 	
 	DETOUR_DECL_MEMBER(void, CTFPlayer_ChangeTeam, int iTeamNum, bool b1, bool b2, bool b3)
 	{
+		if (s_bInReprogrammedTeamChange) {
+			DETOUR_MEMBER_CALL(iTeamNum, b1, b2, b3);
+			return;
+		}
 		auto player = reinterpret_cast<CTFPlayer *>(this);
 		// Remove reprogrammed cond before changing team, apply back if team not changed
 		OnRemoveReprogrammed(player);

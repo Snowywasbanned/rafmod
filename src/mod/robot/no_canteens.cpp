@@ -11,16 +11,15 @@ namespace Mod::Robot::No_Canteens
 	DETOUR_DECL_MEMBER(CEconItemView *, CTFPlayer_GetLoadoutItem, int pclass, int slot, bool b1)
 	{
 		auto player = reinterpret_cast<CTFPlayer *>(this);
-		SCOPED_INCREMENT_IF(rc_isBot, slot == LOADOUT_POSITION_ACTION && TFGameRules()->IsMannVsMachineMode() && player->IsBot());
+		SCOPED_INCREMENT_IF(rc_isBot, slot == LOADOUT_POSITION_ACTION && TFGameRules()->IsMannVsMachineMode() && player->IsBot() && player->GetTeamNumber() == TF_TEAM_BLUE);
 		
 		return DETOUR_MEMBER_CALL(pclass, slot, b1);
 	}
 
 	DETOUR_DECL_MEMBER(CEconItemView *, CTFInventoryManager_GetBaseItemForClass, int pclass, int slot)
 	{
-		static auto defView = CEconItemView::Create();
 		if (rc_isBot) {
-			return defView;
+			return nullptr;
 		}
 		return DETOUR_MEMBER_CALL(pclass, slot);
 	}
