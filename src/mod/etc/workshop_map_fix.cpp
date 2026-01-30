@@ -270,61 +270,61 @@ namespace Mod::Etc::Workshop_Map_Fix
 	{
 	    int result = DETOUR_MEMBER_CALL();
 	
-	    // Success → nothing to do
-	    if (result == 0) {
-	        return result;
-	    }
+	    // Only try to copy if load failed and we have a workshop map
+	    if (result != 0) {
+	        const char *mapName = STRING(gpGlobals->mapname);
+	        std::string mapNameNoVersion = GetMapNameNoVersion(mapName);
 	
-	    const char *mapName = STRING(gpGlobals->mapname);
-	    std::string mapNameNoVersion = GetMapNameNoVersion(mapName);
+	        if (mapNoVersionNameToFullName.contains(mapNameNoVersion)) {
+	            std::error_code ec;
 	
-	    if (!mapNoVersionNameToFullName.contains(mapNameNoVersion)) {
-	        return result;
-	    }
+	            char desiredNavPath[MAX_PATH];
+	            filesystem->RelativePathToFullPath(
+	                std::format("maps/{}.nav", mapName).c_str(),
+	                "GAME",
+	                desiredNavPath,
+	                sizeof(desiredNavPath)
+	            );
 	
-	    std::error_code ec;
+	            // Only copy if nav doesn't exist yet
+	            if (!std::filesystem::exists(desiredNavPath, ec)) {
+	                FileFindHandle_t handle;
+	                
+	                for (const char *nav = filesystem->FindFirstEx("maps/*.nav", "GAME", &handle);
+	                     nav != nullptr;
+	                     nav = filesystem->FindNext(handle)) {
 	
-	    char desiredNavPath[MAX_PATH];
-	    filesystem->RelativePathToFullPath(
-	        std::format("maps/{}.nav", mapName).c_str(),
-	        "GAME",
-	        desiredNavPath,
-	        sizeof(desiredNavPath)
-	    );
+	                    if (!StringHasPrefix(nav, mapNameNoVersion.c_str())) {
+	                        continue;
+	                    }
 	
-	    // If correct nav already exists, retry once
-	    if (std::filesystem::exists(desiredNavPath, ec)) {
-	        return DETOUR_MEMBER_CALL();
-	    }
+	                    char sourceNavPath[MAX_PATH];
+	                    filesystem->RelativePathToFullPath(
+	                        std::format("maps/{}", nav).c_str(),
+	                        "GAME",
+	                        sourceNavPath,
+	                        sizeof(sourceNavPath)
+	                    );
 	
-	    FileFindHandle_t handle;
-	    for (const char *nav = filesystem->FindFirstEx("maps/*.nav", "GAME", &handle);
-	         nav != nullptr;
-	         nav = filesystem->FindNext(handle)) {
+	                    // Copy the file
+	                    std::filesystem::copy_file(
+	                        sourceNavPath,
+	                        desiredNavPath,
+	                        std::filesystem::copy_options::overwrite_existing,
+	                        ec
+	                    );
 	
-	        if (!StringHasPrefix(nav, mapNameNoVersion.c_str())) {
-	            continue;
+	                    if (!ec) {
+	                        Msg("Workshop Map Fix: Copied nav file from %s to %s (reload map to use)\n", sourceNavPath, desiredNavPath);
+	                        break;
+	                    }
+	                }
+	                
+	                filesystem->FindClose(handle);
+	            }
 	        }
-	
-	        char sourceNavPath[MAX_PATH];
-	        filesystem->RelativePathToFullPath(
-	            std::format("maps/{}", nav).c_str(),
-	            "GAME",
-	            sourceNavPath,
-	            sizeof(sourceNavPath)
-	        );
-	
-	        std::filesystem::copy_file(
-	            sourceNavPath,
-	            desiredNavPath,
-	            std::filesystem::copy_options::overwrite_existing,
-	            ec
-	        );
-	
-	        if (!ec) {
-	            return DETOUR_MEMBER_CALL();
-	        }
 	    }
+	
 	
 	    return result;
 	}
@@ -401,6 +401,7 @@ namespace Mod::Etc::Workshop_Map_Fix
 			s_Mod.Toggle(static_cast<ConVar *>(pConVar)->GetBool());
 		});
 }
+
 
 
 
