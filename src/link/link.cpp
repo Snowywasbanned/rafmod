@@ -18,8 +18,6 @@ namespace Link
 		DevMsg("Link::InitAll BEGIN\n");
 		
 		for (auto link : AutoListNoDelete<ILinkage>::List()) {
-			if (ClientFactory() == nullptr && link->ClientSide()) continue;
-
 			link->InvokeLink();
 			
 			if (!link->IsLinked()) {
