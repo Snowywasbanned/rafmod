@@ -199,7 +199,6 @@
     <ClCompile Include="..\src\convar_restore.cpp" />
     <ClCompile Include="..\src\disasm\disasm.cpp" />
     <ClCompile Include="..\src\extension.cpp" />
-    <ClCompile Include="..\src\factory.cpp" />
     <ClCompile Include="..\src\gameconf.cpp" />
     <ClCompile Include="..\src\library.cpp" />
     <ClCompile Include="..\src\link\debugoverlay.cpp" />

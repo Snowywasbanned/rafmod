@@ -22,7 +22,6 @@ sourceFiles += [
   'src/common.cpp',
   'src/convar_restore.cpp',
   'src/extension.cpp',
-  'src/factory.cpp',
   'src/gameconf.cpp',
   'src/library.cpp',
   'src/mod.cpp',

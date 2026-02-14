@@ -245,9 +245,6 @@
     <ClCompile Include="..\src\concolor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\factory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\stub\igamesystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
