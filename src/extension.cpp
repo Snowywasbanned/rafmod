@@ -238,43 +238,6 @@ bool CExtSigsegv::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength
 	GET_IFACE_OPTIONAL(Engine, debugoverlay, VDEBUG_OVERLAY_INTERFACE_VERSION);
 	GET_IFACE_OPTIONAL(Engine, enginetools,  VENGINETOOL_INTERFACE_VERSION);
 	
-	if (SoundEmitterSystemFactory() != nullptr) {
-		GET_IFACE_OPTIONAL(SoundEmitterSystem, soundemitterbase, SOUNDEMITTERSYSTEM_INTERFACE_VERSION);
-	}
-	
-	if (MaterialSystemFactory() != nullptr) {
-		GET_IFACE_OPTIONAL(MaterialSystem, g_pMaterialSystem, MATERIAL_SYSTEM_INTERFACE_VERSION);
-	}
-	if (VGUIFactory() != nullptr) {
-		GET_IFACE_OPTIONAL(VGUI, g_pVGui,              VGUI_IVGUI_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(VGUI, g_pVGuiInput,         VGUI_INPUT_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(VGUI, g_pVGuiPanel,         VGUI_PANEL_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(VGUI, g_pVGuiSchemeManager, VGUI_SCHEME_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(VGUI, g_pVGuiSystem,        VGUI_SYSTEM_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(VGUI, g_pVGuiLocalize,      VGUI_LOCALIZE_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(VGUI, g_pVGuiInputInternal, VGUI_INPUTINTERNAL_INTERFACE_VERSION);
-	}
-	
-	if (VGUIMatSurfaceFactory() != nullptr) {
-		GET_IFACE_OPTIONAL(VGUIMatSurface, g_pVGuiSurface,      VGUI_SURFACE_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(VGUIMatSurface, g_pMatSystemSurface, MAT_SYSTEM_SURFACE_INTERFACE_VERSION);
-	}
-	
-	if (ClientFactory() != nullptr) {
-		GET_IFACE_REQUIRED(Engine, engineclient,  VENGINE_CLIENT_INTERFACE_VERSION);
-		GET_IFACE_REQUIRED(Client, clientdll,     CLIENT_DLL_INTERFACE_VERSION);
-		GET_IFACE_REQUIRED(Client, cl_entitylist, VCLIENTENTITYLIST_INTERFACE_VERSION);
-		GET_IFACE_OPTIONAL(Client, clienttools,   VCLIENTTOOLS_INTERFACE_VERSION);
-	}
-	
-	if (DedicatedFactory() != nullptr) {
-		GET_IFACE_OPTIONAL(Dedicated, dedicated, VENGINE_DEDICATEDEXPORTS_API_VERSION);
-	}
-	
-	if (DataCacheFactory() != nullptr) {
-		GET_IFACE_OPTIONAL(DataCache, mdlcache, MDLCACHE_INTERFACE_VERSION);
-	}
-	
 	GET_IFACE_REQUIRED(Engine, vprofexport, "VProfExport001");
 	
 	sv = engine->GetIServer();
@@ -289,14 +252,7 @@ bool CExtSigsegv::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength
 	LibMgr::SetPtr(Library::THIS,               this);
 	LibMgr::SetPtr(Library::SERVER,             ServerFactory());
 	LibMgr::SetPtr(Library::ENGINE,             EngineFactory());
-	LibMgr::SetPtr(Library::DEDICATED,          DedicatedFactory());
 	LibMgr::SetPtr(Library::TIER0,              &MemAllocScratch);
-	LibMgr::SetPtr(Library::CLIENT,             ClientFactory());
-	LibMgr::SetPtr(Library::VGUIMATSURFACE,     VGUIMatSurfaceFactory());
-	LibMgr::SetPtr(Library::MATERIALSYSTEM,     MaterialSystemFactory());
-	LibMgr::SetPtr(Library::SOUNDEMITTERSYSTEM, SoundEmitterSystemFactory());
-	LibMgr::SetPtr(Library::DATACACHE,          DataCacheFactory());
-	LibMgr::SetPtr(Library::VGUI,               VGUIFactory());
 	LibMgr::SetPtr(Library::VPHYSICS,           VPhysicsFactory());
 	LibMgr::SetPtr(Library::VSTDLIB,            icvar);
 	

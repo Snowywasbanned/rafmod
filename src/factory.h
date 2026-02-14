@@ -9,14 +9,6 @@ inline CreateInterfaceFn ServerFactory()     { return g_SMAPI->GetServerFactory 
 
 
 CreateInterfaceFn CreateInterface();
-CreateInterfaceFn ClientFactory();
-CreateInterfaceFn SoundEmitterSystemFactory();
-CreateInterfaceFn MaterialSystemFactory();
-CreateInterfaceFn VGUIFactory();
-CreateInterfaceFn VGUIMatSurfaceFactory();
-CreateInterfaceFn DedicatedFactory();
-CreateInterfaceFn DataCacheFactory();
-CreateInterfaceFn VScriptManagerFactory();
 
 
 #endif
