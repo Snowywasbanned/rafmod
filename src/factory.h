@@ -1,6 +1,6 @@
 #ifndef _INCLUDE_SIGSEGV_FACTORY_H_
 #define _INCLUDE_SIGSEGV_FACTORY_H_
-
+extern bool g_isTf2Classified;
 
 inline CreateInterfaceFn EngineFactory()     { return g_SMAPI->GetEngineFactory    (false); }
 inline CreateInterfaceFn VPhysicsFactory()   { return g_SMAPI->GetPhysicsFactory   (false); }
@@ -20,3 +20,4 @@ CreateInterfaceFn VScriptManagerFactory();
 
 
 #endif
+
