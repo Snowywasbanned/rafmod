@@ -1,5 +1,4 @@
 #include "factory.h"
-extern bool g_isTf2Classified; 
 
 /* the functions in this namespace are slightly-improved versions of the ones
  * from sdk2013's tier1/interface.cpp */
@@ -118,3 +117,4 @@ CreateInterfaceFn VScriptManagerFactory() {
         return nullptr;
     return GetFactory_NoExt("vscript");
 }
+
