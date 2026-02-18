@@ -119,5 +119,3 @@ CreateInterfaceFn VScriptManagerFactory() {
     return GetFactory_NoExt("vscript");
 }
 DEF_GET_FACTORY(VScriptManager, "vscript");
-#endif
-
