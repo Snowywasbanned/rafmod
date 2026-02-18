@@ -87,7 +87,7 @@ IPhraseCollection *phrases = nullptr;
 IPhraseFile *phrasesFile = nullptr;
 IPhraseCollection *phrasesAttribs = nullptr;
 IPhraseFile *phrasesAttribsFile = nullptr;
-static bool g_isTf2Classified = false;
+bool g_isTf2Classified = false;
 IScriptManager *scriptManager = nullptr;
 
 extern int laserSprite;
@@ -405,4 +405,5 @@ CON_COMMAND(sig_memory_stats, "")
     }
 
 }
+
 
