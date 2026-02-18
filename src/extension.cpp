@@ -87,7 +87,7 @@ IPhraseCollection *phrases = nullptr;
 IPhraseFile *phrasesFile = nullptr;
 IPhraseCollection *phrasesAttribs = nullptr;
 IPhraseFile *phrasesAttribsFile = nullptr;
-
+static bool g_isTf2Classified = false;
 IScriptManager *scriptManager = nullptr;
 
 extern int laserSprite;
@@ -238,6 +238,14 @@ bool CExtSigsegv::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength
 	GET_IFACE_OPTIONAL(Engine, debugoverlay, VDEBUG_OVERLAY_INTERFACE_VERSION);
 	GET_IFACE_OPTIONAL(Engine, enginetools,  VENGINETOOL_INTERFACE_VERSION);
 
+    char gameDir[PATH_MAX] = {0};
+    if (engine != nullptr) {
+        engine->GetGameDir(gameDir, sizeof(gameDir));
+        if (strstr(gameDir, "tf2classified") != nullptr) {
+            g_isTf2Classified = true;
+            Msg("running as tf2classified disabling vscript related stuff due to how buggy it is\n");
+        }
+    }
 #ifdef VSCRIPT_INTERFACE_VERSION
 	if (VScriptManagerFactory() != nullptr) {
 		GET_IFACE_OPTIONAL(VScriptManager, scriptManager,  VSCRIPT_INTERFACE_VERSION);
@@ -306,6 +314,12 @@ bool CExtSigsegv::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength
 	LibMgr::SetPtr(Library::VPHYSICS,           VPhysicsFactory());
 	LibMgr::SetPtr(Library::VSTDLIB,            icvar);
 	LibMgr::SetPtr(Library::VSCRIPT,            VScriptManagerFactory());
+
+    if (!g_isTf2Classified) {
+        LibMgr::SetPtr(Library::VSCRIPT, VScriptManagerFactory());
+    } else {
+        LibMgr::SetPtr(Library::VSCRIPT, nullptr);
+    }
 	
 	return true;
 }
@@ -389,4 +403,5 @@ CON_COMMAND(sig_memory_stats, "")
 			Msg("Peak Virtual Memory: %s KB\n", buffer);
         }
     }
+
 }
