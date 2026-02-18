@@ -3,10 +3,10 @@ name: Build and Release
 on:
   push:
     branches:
-      - tf2c-2
+      - master
   pull_request:
     branches:
-      - tf2c-2
+      - master
   workflow_dispatch:
    
 jobs:
