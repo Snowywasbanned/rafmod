@@ -318,7 +318,7 @@ bool CExtSigsegv::SDK_OnMetamodLoad(ISmmAPI *ismm, char *error, size_t maxlength
     if (!g_isTf2Classified) {
         LibMgr::SetPtr(Library::VSCRIPT, VScriptManagerFactory());
     } else {
-        LibMgr::SetPtr(Library::VSCRIPT, nullptr);
+        LibMgr::SetPtr(Library::VSCRIPT, (CreateInterfaceFn)0);
     }
 	
 	return true;
@@ -405,3 +405,4 @@ CON_COMMAND(sig_memory_stats, "")
     }
 
 }
+
