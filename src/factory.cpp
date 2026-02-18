@@ -1,5 +1,5 @@
 #include "factory.h"
-
+extern bool g_isTf2Classified; 
 
 /* the functions in this namespace are slightly-improved versions of the ones
  * from sdk2013's tier1/interface.cpp */
@@ -113,4 +113,11 @@ DEF_GET_FACTORY(VGUI,               "vgui2");
 DEF_GET_FACTORY(VGUIMatSurface,     "vguimatsurface");
 DEF_GET_FACTORY(Dedicated,          "dedicated");
 DEF_GET_FACTORY(DataCache,          "datacache");
-DEF_GET_FACTORY(VScriptManager,     "vscript");
+CreateInterfaceFn VScriptManagerFactory() {
+    if (g_isTf2Classified)
+        return nullptr;
+    return GetFactory_NoExt("vscript");
+}
+DEF_GET_FACTORY(VScriptManager, "vscript");
+#endif
+
