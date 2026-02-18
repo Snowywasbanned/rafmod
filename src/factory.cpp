@@ -1,5 +1,6 @@
 #include "factory.h"
 #include "extension.h"
+
 /* the functions in this namespace are slightly-improved versions of the ones
  * from sdk2013's tier1/interface.cpp */
 namespace STFU_Linker
@@ -68,7 +69,6 @@ namespace STFU_Linker
 	}
 }
 
-
 #if defined _WINDOWS
 #define DLL_EXT_STRINGS { ".dll" }
 #elif defined _LINUX
@@ -76,7 +76,6 @@ namespace STFU_Linker
 #elif defined _OSX
 #define DLL_EXT_STRINGS { ".dylib" }
 #endif
-
 
 CreateInterfaceFn GetFactory_NoExt(const char *name)
 {
@@ -92,11 +91,14 @@ CreateInterfaceFn GetFactory_NoExt(const char *name)
 	return nullptr;
 }
 
-
+// Revised macro to check for tf2classified before attempting to find the factory
 #define DEF_GET_FACTORY(name, libname) \
 	CreateInterfaceFn name ## Factory() \
 	{ \
 		static CreateInterfaceFn factory = []{ \
+			/* Global check: if tf2classified is active, return null immediately */ \
+			if (g_isTf2Classified) return (CreateInterfaceFn)nullptr; \
+			\
 			CreateInterfaceFn result = GetFactory_NoExt(libname); \
 			if (result == nullptr) DevWarning("Can't find factory for module: " #name "\n"); \
 			return result; \
@@ -104,18 +106,12 @@ CreateInterfaceFn GetFactory_NoExt(const char *name)
 		return factory; \
 	}
 
-
-DEF_GET_FACTORY(Client,             "client");
-DEF_GET_FACTORY(SoundEmitterSystem, "soundemittersystem");
-DEF_GET_FACTORY(MaterialSystem,     "materialsystem");
-DEF_GET_FACTORY(VGUI,               "vgui2");
-DEF_GET_FACTORY(VGUIMatSurface,     "vguimatsurface");
-DEF_GET_FACTORY(Dedicated,          "dedicated");
-DEF_GET_FACTORY(DataCache,          "datacache");
-CreateInterfaceFn VScriptManagerFactory() {
-    if (g_isTf2Classified)
-        return nullptr;
-    return GetFactory_NoExt("vscript");
-}
-
-
+// These will now all return nullptr if g_isTf2Classified is true
+DEF_GET_FACTORY(Client,              "client");
+DEF_GET_FACTORY(SoundEmitterSystem,  "soundemittersystem");
+DEF_GET_FACTORY(MaterialSystem,      "materialsystem");
+DEF_GET_FACTORY(VGUI,                "vgui2");
+DEF_GET_FACTORY(VGUIMatSurface,      "vguimatsurface");
+DEF_GET_FACTORY(Dedicated,           "dedicated");
+DEF_GET_FACTORY(DataCache,           "datacache");
+DEF_GET_FACTORY(VScriptManager,      "vscript"); // Simplified to use the macro
