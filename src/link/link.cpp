@@ -19,6 +19,7 @@ namespace Link
 		
 		for (auto link : AutoListNoDelete<ILinkage>::List()) {
 			if (ClientFactory() == nullptr && link->ClientSide()) continue;
+			if (g_isTf2Classified && link->ClassifiedSkip()) continue;
 
 			link->InvokeLink();
 			

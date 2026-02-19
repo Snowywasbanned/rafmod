@@ -27,6 +27,7 @@ public:
 	
 	bool IsLinked() const { return this->m_bLinked; }
 	virtual bool ClientSide() { return false; }
+	virtual bool ClassifiedSkip() { return false; }
 
 	virtual const char *GetNameDebug() { return nullptr; }
 	virtual const char *GetTypeDebug() { return nullptr; }
@@ -76,6 +77,7 @@ private:
 	const void *m_pFuncPtr = nullptr;
 
 	virtual bool ClientSide() override { return strnicmp(this->m_pszFuncName, "[client]", strlen("[client]")) == 0; }
+	virtual bool ClassifiedSkip() override { return strnicmp(this->m_pszFuncName, "[classified]", strlen("[classified]")) == 0; }
 };
 
 template<typename RET, typename... PARAMS>
@@ -135,6 +137,7 @@ private:
 	const void *m_pFuncPtr = nullptr;
 
 	virtual bool ClientSide() override { return strnicmp(this->m_pszFuncName, "[client]", strlen("[client]")) == 0; }
+	virtual bool ClassifiedSkip() override { return strnicmp(this->m_pszFuncName, "[classified]", strlen("[classified]")) == 0; }
 };
 
 template<class C, typename RET, typename... PARAMS>
@@ -288,6 +291,7 @@ private:
 	int m_iEntryNumber = 0;
 
 	virtual bool ClientSide() override { return strnicmp(this->m_pszFuncName, "[client]", strlen("[client]")) == 0; }
+	virtual bool ClassifiedSkip() override { return strnicmp(this->m_pszFuncName, "[classified]", strlen("[classified]")) == 0; }
 };
 
 template<class C, typename RET, typename... PARAMS>
@@ -408,6 +412,7 @@ private:
 	
 
 	virtual bool ClientSide() override { return strnicmp(this->m_pszObjName, "[client]", strlen("[client]")) == 0; }
+	virtual bool ClassifiedSkip() override { return strnicmp(this->m_pszObjName, "[classified]", strlen("[classified]")) == 0; }
 };
 
 template<typename T>

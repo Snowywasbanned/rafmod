@@ -25,7 +25,7 @@ IMPL_DATAMAP(IPhysicsConstraint *, CItem, m_pConstraint);
 
 IMPL_DATAMAP(bool, CBaseTrigger, m_bDisabled);
 
-MemberVFuncThunk<CBaseTrigger *, bool, CBaseEntity *> CBaseTrigger::vt_PassesTriggerFilters(TypeName<CBaseTrigger>(),"CBaseTrigger::PassesTriggerFilters");
+MemberVFuncThunk<CBaseTrigger *, bool, CBaseEntity *> CBaseTrigger::vt_PassesTriggerFilters(TypeName<CBaseTrigger>(),"[classified]CBaseTrigger::PassesTriggerFilters");
 
 
 IMPL_DATAMAP(int,      CFuncNavPrerequisite, m_task);
@@ -126,7 +126,7 @@ MemberVFuncThunk<CBaseServerVehicle *, void, CBaseCombatCharacter *, bool> CBase
 MemberVFuncThunk<CBaseServerVehicle *, CBaseEntity *> CBaseServerVehicle::vt_GetDriver(TypeName<CBaseServerVehicle>(), "CBaseServerVehicle::GetDriver");
 MemberVFuncThunk<CBaseServerVehicle *, CBaseEntity *> CBaseServerVehicle::vt_GetVehicleEnt(TypeName<CBaseServerVehicle>(), "CBaseServerVehicle::GetVehicleEnt");
 
-GlobalThunk<CBaseEntity *> g_WorldEntity("g_WorldEntity");
+GlobalThunk<CBaseEntity *> g_WorldEntity("[classified]g_WorldEntity");
 
 MemberFuncThunk<CBeam *, void, CBaseEntity *, CBaseEntity *> CBeam::ft_EntsInit("CBeam::EntsInit");
 

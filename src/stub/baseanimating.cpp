@@ -106,6 +106,6 @@ void CEconEntity::Validate()
 #endif
 
 StaticFuncThunk<void, CBaseEntity *, const Vector *, const Vector *> ft_UTIL_SetSize("UTIL_SetSize");
-StaticFuncThunk<float, CBaseFlex *, const char *, EHANDLE *, float, bool, void *, bool, IRecipientFilter *> ft_InstancedScriptedScene("InstancedScriptedScene");
-StaticFuncThunk<void, CBaseFlex *, EHANDLE> ft_StopScriptedScene("StopScriptedScene");
+StaticFuncThunk<float, CBaseFlex *, const char *, EHANDLE *, float, bool, void *, bool, IRecipientFilter *> ft_InstancedScriptedScene("[classified]InstancedScriptedScene");
+StaticFuncThunk<void, CBaseFlex *, EHANDLE> ft_StopScriptedScene("[classified]StopScriptedScene");
 StaticFuncThunk<int, CStudioHdr *, int, int> ft_SelectWeightedSequence("SelectWeightedSequence");
