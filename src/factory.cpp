@@ -91,14 +91,11 @@ CreateInterfaceFn GetFactory_NoExt(const char *name)
 	return nullptr;
 }
 
-// Revised macro to check for tf2classified before attempting to find the factory
 #define DEF_GET_FACTORY(name, libname) \
 	CreateInterfaceFn name ## Factory() \
 	{ \
+		if (g_isTf2Classified) return (CreateInterfaceFn)nullptr; \
 		static CreateInterfaceFn factory = []{ \
-			/* Global check: if tf2classified is active, return null immediately */ \
-			if (g_isTf2Classified) return (CreateInterfaceFn)nullptr; \
-			\
 			CreateInterfaceFn result = GetFactory_NoExt(libname); \
 			if (result == nullptr) DevWarning("Can't find factory for module: " #name "\n"); \
 			return result; \
