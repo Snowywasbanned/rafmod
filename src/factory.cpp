@@ -120,13 +120,14 @@ CreateInterfaceFn GetFactory_NoExt(const char *name)
 
 // These always load regardless of g_isTf2Classified
 DEF_GET_FACTORY_ALWAYS(Client,             "client");
-DEF_GET_FACTORY_ALWAYS(SoundEmitterSystem, "soundemittersystem");
 
 // These will return nullptr if g_isTf2Classified is true
 DEF_GET_FACTORY(MaterialSystem,   "materialsystem");
+DEF_GET_FACTORY(SoundEmitterSystem, "soundemittersystem");
 DEF_GET_FACTORY(Dedicated,          "dedicated");
 DEF_GET_FACTORY(VGUI,             "vgui2"); //i feel like this wont work but whatever
 DEF_GET_FACTORY(VGUIMatSurface,   "vguimatsurface");
 DEF_GET_FACTORY(DataCache,        "datacache");
 DEF_GET_FACTORY(VScriptManager,   "vscript");
+
 
